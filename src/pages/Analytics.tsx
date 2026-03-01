@@ -13,10 +13,10 @@ export const Analytics: React.FC = () => {
     for (let i = 6; i >= 0; i--) {
       const date = subDays(new Date(), i);
       const dateStr = format(date, 'yyyy-MM-dd');
-      
-      const dayProposals = proposals.filter(p => p.createdAt.startsWith(dateStr));
+
+      const dayProposals = proposals.filter(p => p.createdAt && typeof p.createdAt === 'string' && p.createdAt.startsWith(dateStr));
       const views = dayProposals.reduce((sum, p) => sum + (p.views || 0), 0);
-      const value = dayProposals.reduce((sum, p) => sum + p.total, 0);
+      const value = dayProposals.reduce((sum, p) => sum + (p.total || 0), 0);
 
       data.push({
         date: format(date, 'dd/MM', { locale: ptBR }),
@@ -32,7 +32,7 @@ export const Analytics: React.FC = () => {
 
   const totalValue = proposals.reduce((acc, p) => p.status === 'approved' ? acc + p.total : acc, 0);
   const totalSentValue = proposals.reduce((acc, p) => p.status === 'sent' ? acc + p.total : acc, 0);
-  const conversionRate = proposals.length > 0 
+  const conversionRate = proposals.length > 0
     ? ((proposals.filter(p => p.status === 'approved').length / proposals.length) * 100).toFixed(1)
     : 0;
 
@@ -71,18 +71,18 @@ export const Analytics: React.FC = () => {
               <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorProps" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
                 <XAxis dataKey="date" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
                 <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip 
+                <Tooltip
                   contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 />
                 <Legend />
@@ -101,14 +101,14 @@ export const Analytics: React.FC = () => {
               <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
                 <XAxis dataKey="date" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis 
-                  stroke="#9ca3af" 
-                  fontSize={12} 
-                  tickLine={false} 
+                <YAxis
+                  stroke="#9ca3af"
+                  fontSize={12}
+                  tickLine={false}
                   axisLine={false}
-                  tickFormatter={(value) => `R$${value >= 1000 ? (value/1000).toFixed(1) + 'k' : value}`}
+                  tickFormatter={(value) => `R$${value >= 1000 ? (value / 1000).toFixed(1) + 'k' : value}`}
                 />
-                <Tooltip 
+                <Tooltip
                   formatter={(value: any) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value as number)}
                   contentStyle={{ backgroundColor: '#171717', color: '#fff', borderRadius: '8px', border: 'none' }}
                   itemStyle={{ color: '#fff' }}

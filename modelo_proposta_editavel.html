@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modelo de Proposta - Orbit Brand</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* DESIGN SYSTEM ORBIT BRAND */
+        :root {
+            --primary: #000000;
+            --neutral-100: #f5f5f5;
+            --neutral-200: #e5e5e5;
+            --neutral-400: #a3a3a3;
+            --neutral-500: #737373;
+            --neutral-800: #262626;
+            --accent: #4f46e5;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--neutral-200);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* CONTAINER DA PÁGINA A4 */
+        .proposal-container {
+            background: white;
+            width: 210mm;
+            /* Largura A4 */
+            min-height: 297mm;
+            /* Altura A4 */
+            padding: 20mm;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        /* HEADER */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 4px solid var(--primary);
+            padding-bottom: 30px;
+        }
+
+        .logo-area h1 {
+            font-size: 42px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            margin: 0;
+            font-style: italic;
+            text-transform: uppercase;
+        }
+
+        .logo-area p {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.3em;
+            color: var(--neutral-400);
+            text-transform: uppercase;
+            margin: 5px 0 0 0;
+        }
+
+        .agency-info {
+            text-align: right;
+            font-size: 11px;
+            color: var(--neutral-500);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            line-height: 1.6;
+        }
+
+        .agency-info b {
+            color: var(--primary);
+            font-weight: 900;
+        }
+
+        /* INFO CLIENTE E PROJETO */
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            padding: 20px 0;
+        }
+
+        .detail-item h4 {
+            font-size: 10px;
+            font-weight: 900;
+            color: var(--neutral-400);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin: 0 0 5px 0;
+        }
+
+        .detail-item p {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .detail-item.right {
+            text-align: right;
+        }
+
+        /* TABELA DE SERVIÇOS */
+        section h3 {
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-bottom: 1px solid var(--neutral-200);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--neutral-400);
+            text-align: left;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        td {
+            padding: 25px 0;
+            border-bottom: 1px solid var(--neutral-100);
+            vertical-align: top;
+        }
+
+        .service-name {
+            font-size: 14px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .service-desc {
+            font-size: 12px;
+            color: var(--neutral-500);
+            margin: 8px 0 0 0;
+            line-height: 1.6;
+        }
+
+        /* TOTAL CARD */
+        .total-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .total-card {
+            background: var(--primary);
+            color: white;
+            padding: 30px 40px;
+            border-radius: 20px;
+            width: 300px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .total-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            opacity: 0.7;
+        }
+
+        .total-value {
+            font-size: 28px;
+            font-weight: 900;
+            margin-top: 10px;
+        }
+
+        /* TERMOS */
+        .terms-text {
+            font-size: 12px;
+            color: var(--neutral-500);
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+
+        /* MÍDIA */
+        .media-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .media-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .media-box {
+            aspect-ratio: 3/2;
+            background: var(--neutral-100);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid var(--neutral-200);
+            margin-bottom: 10px;
+        }
+
+        .media-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .media-caption {
+            font-size: 9px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--neutral-400);
+        }
+
+        /* FOOTER PDF */
+        footer {
+            margin-top: auto;
+            border-top: 1px solid var(--neutral-200);
+            padding-top: 30px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--neutral-400);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="proposal-container">
+
+        <!-- CABEÇALHO -->
+        <header>
+            <div class="logo-area">
+                <h1>ORBIT BRAND</h1>
+                <p>Proposta Comercial</p>
+            </div>
+            <div class="agency-info">
+                <b>Orbit Brand Agência de Marketing</b><br>
+                contato@orbitbrand.com.br<br>
+                CNPJ: 00.000.000/0001-00
+            </div>
+        </header>
+
+        <!-- DETALHES -->
+        <div class="details-grid">
+            <div class="detail-item">
+                <h4>PARA</h4>
+                <p>Nome do Cliente Exemplo</p>
+            </div>
+            <div class="detail-item right">
+                <h4>PROJETO</h4>
+                <p>Lançamento de Produto 2024</p>
+            </div>
+        </div>
+
+        <!-- SERVIÇOS -->
+        <section>
+            <h3>Serviços Propostos</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50%;">Descrição</th>
+                        <th style="text-align: center;">Qtd</th>
+                        <th style="text-align: right;">Preço Unit.</th>
+                        <th style="text-align: right;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <p class="service-name">Produção Audiovisual</p>
+                            <p class="service-desc">Captação em 4K, edição profissional, sound design e color grading
+                                para vídeos institucionais.</p>
+                        </td>
+                        <td style="text-align: center;">02</td>
+                        <td style="text-align: right;">R$ 2.500,00</td>
+                        <td style="text-align: right; font-weight: 700;">R$ 5.000,00</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p class="service-name">Gestão de Tráfego</p>
+                            <p class="service-desc">Configuração de campanhas no Meta Ads e Google Ads com
+                                acompanhamento diário.</p>
+                        </td>
+                        <td style="text-align: center;">01</td>
+                        <td style="text-align: right;">R$ 1.200,00</td>
+                        <td style="text-align: right; font-weight: 700;">R$ 1.200,00</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="total-container">
+                <div class="total-card">
+                    <span class="total-label">Total Investimento</span>
+                    <div class="total-value">R$ 6.200,00</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TERMOS -->
+        <section>
+            <h3>Termos e Condições</h3>
+            <div class="terms-text">
+                1. Pagamento: 50% de sinal e 50% na entrega final.
+                2. Prazo de entrega: 15 dias úteis após a aprovação do roteiro.
+                3. Validade: Esta proposta é válida por 15 dias.
+            </div>
+        </section>
+
+        <!-- MÍDIA (Sempre começa em nova página no PDF) -->
+        <section style="page-break-before: always; border-top: 1px solid #f0f0f0; padding-top: 50px;">
+            <h3>Referências & Mídia</h3>
+            <div class="media-grid">
+                <div class="media-item">
+                    <div class="media-box">
+                        <img src="https://images.unsplash.com/photo-1492691523567-617072485e92?auto=format&fit=crop&w=800&q=80"
+                            alt="Exemplo">
+                    </div>
+                    <span class="media-caption">Referência Estética 01</span>
+                </div>
+                <div class="media-item">
+                    <div class="media-box">
+                        <img src="https://images.unsplash.com/photo-1492691523567-617072485e92?auto=format&fit=crop&w=800&q=80"
+                            alt="Exemplo">
+                    </div>
+                    <span class="media-caption">Referência Estética 02</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- RODAPÉ -->
+        <footer>
+            Este documento é um rascunho de design. Integrado ao App Orbit Brand.<br>
+            <b>© 2024 Orbit Brand Agência de Marketing</b>
+        </footer>
+
+    </div>
+
+</body>
+
+</html>

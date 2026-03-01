@@ -9,19 +9,30 @@ import {
   Video,
   Menu,
   X,
+  PlusSquare,
+  Shield,
+  Cloud,
+  RefreshCw,
+  Receipt,
+  BookOpen
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useAppContext } from '../context/AppContext';
 
 export const Layout: React.FC = () => {
   const { user, logout } = useAuth();
+  const { isSyncingTemplates } = useAppContext();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navItems = [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/proposals', icon: FileText, label: 'Propostas' },
-    { to: '/templates', icon: FileText, label: 'Templates' },
+    { to: '/templates', icon: PlusSquare, label: 'Criar Proposta' },
+    { to: '/proposals', icon: FileText, label: 'Minhas Propostas' },
     { to: '/analytics', icon: BarChart3, label: 'Análises' },
-    { to: '/settings', icon: Settings, label: 'Configurações' },
+    // Added Fiscal link with role-based access
+    ...(user?.role === 'master' || user?.role === 'admin' || user?.role === 'manager' ? [{ to: '/fiscal', icon: Receipt, label: 'Fiscal' }] : []),
+    { to: '/glossary', icon: BookOpen, label: 'Glossário' },
+    ...(user?.role === 'master' ? [{ to: '/settings', icon: Settings, label: 'Configurações' }] : []),
   ];
 
   const handleLogout = () => {
@@ -48,14 +59,13 @@ export const Layout: React.FC = () => {
       {/* Sidebar / Navegação */}
       <aside className={`${sidebarBase} ${sidebarTranslate} print:hidden`}>
         <div className="p-6 flex items-center space-x-3 border-b border-neutral-800">
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-white text-black">
-            <span className="absolute -left-1 text-[22px] font-serif leading-none">O</span>
-            <span className="absolute left-2 text-[22px] font-serif leading-none">B</span>
+          <div className="flex-shrink-0 w-10 h-10 rounded-xl overflow-hidden bg-white flex items-center justify-center p-1 border border-neutral-800">
+            <img src="https://i.ibb.co/8nzR0RcL/logo-OB-0.png" alt="Orbit Brand" className="w-full h-full object-contain" />
           </div>
           <div className="flex-1">
             <p className="text-sm font-semibold tracking-[0.3em] uppercase">Orbit Brand</p>
             <p className="text-[10px] text-neutral-400 tracking-[0.22em] uppercase">
-              Filmmaking · Mobile · Social · Foto · Eventos
+              Filmmaking
             </p>
           </div>
           <button
@@ -73,10 +83,9 @@ export const Layout: React.FC = () => {
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `flex items-center space-x-3 px-4 py-2.5 rounded-lg text-sm transition-colors ${
-                  isActive
-                    ? 'bg-neutral-100 text-black font-semibold'
-                    : 'text-neutral-400 hover:bg-neutral-900 hover:text-white'
+                `flex items-center space-x-3 px-4 py-2.5 rounded-lg text-sm transition-colors ${isActive
+                  ? 'bg-neutral-100 text-black font-semibold'
+                  : 'text-neutral-400 hover:bg-neutral-900 hover:text-white'
                 }`
               }
               onClick={() => setSidebarOpen(false)}
@@ -87,11 +96,28 @@ export const Layout: React.FC = () => {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-neutral-800">
+        <div className="p-4 border-t border-neutral-800 space-y-4">
+          {isSyncingTemplates && (
+            <div className="flex items-center gap-3 px-4 py-2 bg-indigo-500/10 text-indigo-400 rounded-lg animate-pulse border border-indigo-500/20">
+              <Cloud className="w-4 h-4" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Nuvem Sync...</span>
+              <RefreshCw className="w-3 h-3 animate-spin ml-auto" />
+            </div>
+          )}
+
           {user && (
-            <div className="px-4 pb-3 text-xs text-neutral-400">
-              <p className="font-semibold text-white text-sm">{user.name}</p>
-              <p className="truncate">{user.email}</p>
+            <div className="flex items-center gap-3 px-4 pb-3">
+              {user.avatarUrl ? (
+                <img src={user.avatarUrl} alt={user.name} className="w-9 h-9 rounded-xl object-cover border border-neutral-800" />
+              ) : (
+                <div className="w-9 h-9 rounded-xl bg-neutral-800 flex items-center justify-center font-black text-xs text-neutral-400">
+                  {user.name.substring(0, 2).toUpperCase()}
+                </div>
+              )}
+              <div className="text-xs text-neutral-400 min-w-0">
+                <p className="font-semibold text-white text-sm truncate">{user.name}</p>
+                <p className="truncate opacity-50 px-0.5">{user.email}</p>
+              </div>
             </div>
           )}
           <button
@@ -123,8 +149,12 @@ export const Layout: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-full bg-neutral-900 flex items-center justify-center text-[11px] font-semibold text-white">
-              OB
+            <div className="w-8 h-8 rounded-full bg-neutral-900 flex items-center justify-center text-[11px] font-semibold text-white overflow-hidden border border-neutral-200">
+              {user?.avatarUrl ? (
+                <img src={user.avatarUrl} alt={user?.name} className="w-full h-full object-cover" />
+              ) : (
+                user?.name.substring(0, 2).toUpperCase() || 'OB'
+              )}
             </div>
             <div className="text-right">
               <p className="text-xs font-semibold text-neutral-900">

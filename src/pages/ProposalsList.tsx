@@ -1,12 +1,22 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import { FileText, Edit2, Trash2, Eye } from 'lucide-react';
+import { FileText, Edit2, Trash2, Eye, Receipt } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export const ProposalsList: React.FC = () => {
-  const { proposals, deleteProposal } = useAppContext();
+  const { proposals, deleteProposal, loading } = useAppContext();
+
+  const handleDelete = async (id: string, name: string) => {
+    if (window.confirm(`Tem certeza que deseja excluir a proposta "${name}"?`)) {
+      try {
+        await deleteProposal(id);
+      } catch (error) {
+        alert("Erro ao excluir proposta.");
+      }
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -35,8 +45,8 @@ export const ProposalsList: React.FC = () => {
           <h2 className="text-2xl font-bold text-neutral-900">Propostas</h2>
           <p className="text-neutral-500 mt-1">Gerencie todas as suas propostas enviadas e em rascunho.</p>
         </div>
-        <Link 
-          to="/templates" 
+        <Link
+          to="/templates"
           className="flex items-center space-x-2 bg-black hover:bg-neutral-800 text-white px-4 py-2 rounded-lg transition-colors font-medium shadow-sm"
         >
           <FileText className="w-5 h-5" />
@@ -87,16 +97,31 @@ export const ProposalsList: React.FC = () => {
                         <Link to={`/client/${proposal.id}`} target="_blank" className="p-2 text-neutral-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Visualizar como Cliente">
                           <Eye className="w-4 h-4" />
                         </Link>
+                        {(proposal.status === 'approved' || proposal.status === 'sent') && (
+                          <Link
+                            to={`/fiscal?client=${encodeURIComponent(proposal.clientName)}&doc=${encodeURIComponent(proposal.clientEmail)}&docPre=${encodeURIComponent(proposal.clientDocument || '')}&amount=${proposal.total}&desc=${encodeURIComponent(`Pagamento referente ao projeto ${proposal.projectName}`)}&id=${proposal.id}`}
+                            className="p-2 text-neutral-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                            title="Gerar Recibo"
+                          >
+                            <Receipt className="w-4 h-4" />
+                          </Link>
+                        )}
                         <Link to={`/editor/${proposal.id}`} className="p-2 text-neutral-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="Editar">
                           <Edit2 className="w-4 h-4" />
                         </Link>
-                        <button onClick={() => deleteProposal(proposal.id)} className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Excluir">
+                        <button onClick={() => handleDelete(proposal.id, proposal.projectName)} className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Excluir">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
                   </tr>
                 ))
+              ) : loading ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-neutral-400 uppercase tracking-widest text-xs font-bold animate-pulse">
+                    Sincronizando com Banco de Dados...
+                  </td>
+                </tr>
               ) : (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center">

@@ -21,8 +21,20 @@ export const AuthPage: React.FC = () => {
       } else {
         await register(name, email, password);
       }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Ocorreu um erro. Tente novamente.';
+    } catch (err: any) {
+      console.error(err);
+      let message = 'Ocorreu um erro. Tente novamente.';
+
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+        message = 'E-mail ou senha incorretos. Se esta é sua primeira vez, tente criar uma conta.';
+      } else if (err.code === 'auth/email-already-in-use') {
+        message = 'Este e-mail já está em uso. Tente fazer login.';
+      } else if (err.code === 'auth/weak-password') {
+        message = 'A senha deve ter pelo menos 6 caracteres.';
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+
       setError(message);
     } finally {
       setLoading(false);
@@ -60,18 +72,16 @@ export const AuthPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setMode('login')}
-              className={`flex-1 text-sm font-medium py-2 rounded-full transition-colors ${
-                mode === 'login' ? 'bg-white text-black' : 'text-neutral-400 hover:text-white'
-              }`}
+              className={`flex-1 text-sm font-medium py-2 rounded-full transition-colors ${mode === 'login' ? 'bg-white text-black' : 'text-neutral-400 hover:text-white'
+                }`}
             >
               Entrar
             </button>
             <button
               type="button"
               onClick={() => setMode('register')}
-              className={`flex-1 text-sm font-medium py-2 rounded-full transition-colors ${
-                mode === 'register' ? 'bg-white text-black' : 'text-neutral-400 hover:text-white'
-              }`}
+              className={`flex-1 text-sm font-medium py-2 rounded-full transition-colors ${mode === 'register' ? 'bg-white text-black' : 'text-neutral-400 hover:text-white'
+                }`}
             >
               Criar conta
             </button>
@@ -79,14 +89,23 @@ export const AuthPage: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'register' && (
+              <div className="p-3 bg-yellow-950/30 border border-yellow-800/50 rounded-xl mb-4">
+                <p className="text-[11px] text-yellow-200 leading-tight">
+                  <strong>Atenção:</strong> O acesso ao painel é restrito. Registros que não forem do e-mail master ou autorizados serão desativados.
+                </p>
+              </div>
+            )}
+
+            {mode === 'register' && (
               <div>
                 <label className="block text-xs font-medium text-neutral-400 mb-1">Nome completo</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-neutral-900 border border-neutral-700 text-sm focus:outline-none focus:border-white"
+                  className="w-full px-3 py-2 rounded-lg bg-neutral-900 border border-neutral-700 text-sm focus:outline-none focus:border-white transition-colors"
                   placeholder="Ex: Ana da Silva"
+                  required={mode === 'register'}
                 />
               </div>
             )}
@@ -96,8 +115,9 @@ export const AuthPage: React.FC = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-neutral-900 border border-neutral-700 text-sm focus:outline-none focus:border-white"
+                className="w-full px-3 py-2 rounded-lg bg-neutral-900 border border-neutral-700 text-sm focus:outline-none focus:border-white transition-colors"
                 placeholder="voce@orbitbrand.com"
+                required
               />
             </div>
             <div>
@@ -106,13 +126,14 @@ export const AuthPage: React.FC = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-neutral-900 border border-neutral-700 text-sm focus:outline-none focus:border-white"
-                placeholder="Min. 6 caracteres"
+                className="w-full px-3 py-2 rounded-lg bg-neutral-900 border border-neutral-700 text-sm focus:outline-none focus:border-white transition-colors"
+                placeholder="Mínimo 6 caracteres"
+                required
               />
             </div>
 
             {error && (
-              <div className="text-xs text-red-400 bg-red-950/40 border border-red-800 rounded-lg px-3 py-2">
+              <div className="text-xs text-red-400 bg-red-950/40 border border-red-800 rounded-lg px-3 py-2 leading-tight">
                 {error}
               </div>
             )}
@@ -127,8 +148,8 @@ export const AuthPage: React.FC = () => {
             </button>
           </form>
 
-          <p className="mt-4 text-[11px] text-neutral-500">
-            Dica: use um e-mail simples e senha fácil de lembrar durante os testes. A autenticação é gerenciada pelo Firebase Auth.
+          <p className="mt-6 text-[11px] text-neutral-500 text-center">
+            Acesso exclusivo para equipe <strong>Orbit Brand</strong>.
           </p>
         </div>
       </div>

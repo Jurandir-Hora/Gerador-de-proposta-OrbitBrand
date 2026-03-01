@@ -10,6 +10,9 @@ import { ProposalsList } from './pages/ProposalsList';
 import { ClientView } from './pages/ClientView';
 import { Analytics } from './pages/Analytics';
 import { AuthPage } from './pages/AuthPage';
+import { UserManagement } from './pages/UserManagement';
+import { Fiscal } from './pages/Fiscal';
+import { Glossary } from './pages/Glossary';
 
 const ProtectedRoutes: React.FC = () => {
   const { user, loading } = useAuth();
@@ -35,17 +38,11 @@ const ProtectedRoutes: React.FC = () => {
         <Route path="editor/:id" element={<ProposalEditor />} />
         <Route path="proposals" element={<ProposalsList />} />
         <Route path="analytics" element={<Analytics />} />
+        <Route path="fiscal" element={<Fiscal />} />
+        <Route path="glossary" element={<Glossary />} />
         <Route
           path="settings"
-          element={
-            <div className="p-8 space-y-4">
-              <h1 className="text-2xl font-bold mb-2">Configurações da Conta</h1>
-              <p className="text-neutral-600 text-sm max-w-xl">
-                Em uma versão completa, aqui você poderia configurar integrações de pagamento, identidade visual das propostas,
-                domínios personalizados e notificações automáticas.
-              </p>
-            </div>
-          }
+          element={user?.role === 'master' ? <UserManagement /> : <div className="p-8 text-center font-bold">Acesso restrito a administradores.</div>}
         />
       </Route>
     </Routes>
