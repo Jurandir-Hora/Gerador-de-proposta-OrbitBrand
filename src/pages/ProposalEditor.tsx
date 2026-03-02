@@ -380,7 +380,7 @@ export const ProposalEditor: React.FC = () => {
                 <div key={service.id} className="bg-white p-4 rounded-xl border border-neutral-200 shadow-sm relative group">
                   <button
                     onClick={() => removeService(index)}
-                    className="absolute -top-3 -right-3 p-1.5 bg-red-100 text-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-200"
+                    className="absolute -top-3 -right-3 p-1.5 bg-red-100 text-red-600 rounded-full opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity hover:bg-red-200"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -537,7 +537,7 @@ export const ProposalEditor: React.FC = () => {
                       </div>
                     )}
 
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                    <div className="absolute inset-0 bg-black/60 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
                       <button
                         onClick={() => setProposal({ ...proposal, media: proposal.media.filter(media => media.id !== m.id) })}
                         className="p-3 bg-red-500 text-white rounded-2xl hover:scale-110 transition-transform flex items-center gap-2 text-[10px] font-black uppercase tracking-widest shadow-xl"

@@ -244,7 +244,7 @@ export const Fiscal: React.FC = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-5 text-right">
-                                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="flex justify-end gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                                             <button
                                                 onClick={() => generatePDF(receipt)}
                                                 disabled={exporting === receipt.id}

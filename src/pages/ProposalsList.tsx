@@ -93,7 +93,7 @@ export const ProposalsList: React.FC = () => {
                       {format(new Date(proposal.updatedAt), "dd 'de' MMM, yyyy", { locale: ptBR })}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center justify-end space-x-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                         <Link to={`/client/${proposal.id}`} target="_blank" className="p-2 text-neutral-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Visualizar como Cliente">
                           <Eye className="w-4 h-4" />
                         </Link>

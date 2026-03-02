@@ -428,7 +428,7 @@ export const UserManagement: React.FC = () => {
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6 text-right">
-                                                <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                                                <div className="flex items-center justify-end gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all">
                                                     <button onClick={() => handleEditUser(u)} className="p-2 text-neutral-400 hover:text-black"><Edit2 className="w-5 h-5" /></button>
                                                     <button onClick={() => handleDeleteUser(u.id, u.email)} className="p-2 text-neutral-300 hover:text-red-500"><Trash2 className="w-5 h-5" /></button>
                                                 </div>
@@ -761,7 +761,7 @@ export const UserManagement: React.FC = () => {
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                                    <div className="flex gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all">
                                         <button onClick={() => handleEditTemplate(t)} className="p-2 text-neutral-400 hover:text-black transition-all"><Edit2 className="w-4 h-4" /></button>
                                         <button onClick={() => handleDeleteTemplate(t.id, t.name)} className="p-2 text-neutral-400 hover:text-red-500 transition-all"><Trash2 className="w-4 h-4" /></button>
                                     </div>
