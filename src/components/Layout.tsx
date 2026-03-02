@@ -74,7 +74,11 @@ export const Layout: React.FC = () => {
       <aside className={`${sidebarBase} ${sidebarTranslate} print:hidden`}>
         <div className="p-6 flex items-center space-x-3 border-b border-neutral-800">
           <div className="flex-shrink-0 w-10 h-10 rounded-xl overflow-hidden bg-white flex items-center justify-center p-1 border border-neutral-800">
-            <img src="https://i.ibb.co/cf9hntw/logo-favicon.png" alt="Orbit Brand" className="w-full h-full object-contain" />
+            <img
+              src={theme === 'default' || theme === 'neu-bright' ? "https://i.ibb.co/8nzR0RcL/logo-OB-0.png" : "https://i.ibb.co/cf9hntw/logo-favicon.png"}
+              alt="Orbit Brand"
+              className="w-full h-full object-contain"
+            />
           </div>
           <div className="flex-1">
             <p className="text-sm font-semibold tracking-[0.3em] uppercase">Orbit Brand</p>

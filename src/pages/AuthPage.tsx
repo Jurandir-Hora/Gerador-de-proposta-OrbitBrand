@@ -11,6 +11,11 @@ export const AuthPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  React.useEffect(() => {
+    // Garante que a página de login sempre tenha o tema escuro padrão limpo, removendo resíduos
+    document.body.removeAttribute('data-theme');
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
