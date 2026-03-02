@@ -43,5 +43,128 @@
 @layer base {
     body {
         @apply bg-neutral-50 text-neutral-900;
+        transition: background-color 0.3s ease, color 0.3s ease;
     }
+}
+
+/* ── NEUMORPHISM THEMES ── */
+[data-theme="neu-bright"] {
+    --neu-bg: #e0e5ec;
+    --neu-surface: #e0e5ec;
+    --neu-dark: #a3b1c6;
+    --neu-light: #ffffff;
+    --neu-text: #4a5568;
+    --neu-text-light: #718096;
+}
+
+[data-theme="neu-black"] {
+    --neu-bg: #1a1b1e;
+    --neu-surface: #1a1b1e;
+    --neu-dark: #121315;
+    --neu-light: #222327;
+    --neu-text: #e2e8f0;
+    --neu-text-light: #a0aec0;
+}
+
+[data-theme="neu-gray"] {
+    --neu-bg: #7c7c7e;
+    --neu-surface: #7c7c7e;
+    --neu-dark: #636365;
+    --neu-light: #959597;
+    --neu-text: #f8fafc;
+    --neu-text-light: #e2e8f0;
+}
+
+[data-theme^="neu-"] body {
+    background-color: var(--neu-bg) !important;
+    color: var(--neu-text) !important;
+}
+
+/* Override Backgrounds & Panels */
+[data-theme^="neu-"] .bg-white,
+[data-theme^="neu-"] .bg-neutral-50,
+[data-theme^="neu-"] .bg-neutral-100,
+[data-theme^="neu-"] .bg-black,
+[data-theme^="neu-"] .bg-neutral-900,
+[data-theme^="neu-"] aside,
+[data-theme^="neu-"] header,
+[data-theme^="neu-"] main>div>div>.bg-white {
+    background-color: var(--neu-surface) !important;
+    border: none !important;
+    box-shadow: 8px 8px 16px var(--neu-dark), -8px -8px 16px var(--neu-light) !important;
+    color: var(--neu-text) !important;
+}
+
+/* Make Sidebar flat inside its own shadow */
+[data-theme^="neu-"] aside {
+    box-shadow: 10px 0 20px var(--neu-dark) !important;
+}
+
+/* Inputs */
+[data-theme^="neu-"] input,
+[data-theme^="neu-"] select,
+[data-theme^="neu-"] textarea {
+    background-color: var(--neu-surface) !important;
+    border: none !important;
+    box-shadow: inset 5px 5px 10px var(--neu-dark), inset -5px -5px 10px var(--neu-light) !important;
+    color: var(--neu-text) !important;
+    outline: none !important;
+}
+
+[data-theme^="neu-"] input:focus,
+[data-theme^="neu-"] select:focus,
+[data-theme^="neu-"] textarea:focus {
+    box-shadow: inset 7px 7px 14px var(--neu-dark), inset -7px -7px 14px var(--neu-light) !important;
+}
+
+/* Buttons */
+[data-theme^="neu-"] button,
+[data-theme^="neu-"] a.bg-black,
+[data-theme^="neu-"] a.bg-white {
+    background-color: var(--neu-surface) !important;
+    border: none !important;
+    box-shadow: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light) !important;
+    color: var(--neu-text) !important;
+    transition: all 0.2s ease !important;
+}
+
+[data-theme^="neu-"] button:hover,
+[data-theme^="neu-"] a.bg-black:hover,
+[data-theme^="neu-"] a.bg-white:hover {
+    box-shadow: 8px 8px 16px var(--neu-dark), -8px -8px 16px var(--neu-light) !important;
+    transform: translateY(-1px);
+}
+
+[data-theme^="neu-"] button:active,
+[data-theme^="neu-"] a.bg-black:active,
+[data-theme^="neu-"] a.bg-white:active {
+    box-shadow: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light) !important;
+    transform: translateY(2px);
+}
+
+/* Text Overrides */
+[data-theme^="neu-"] .text-neutral-900,
+[data-theme^="neu-"] .text-black,
+[data-theme^="neu-"] .text-white {
+    color: var(--neu-text) !important;
+}
+
+[data-theme^="neu-"] .text-neutral-500,
+[data-theme^="neu-"] .text-neutral-400 {
+    color: var(--neu-text-light) !important;
+}
+
+/* Protect the PDF Preview from the theme */
+[data-theme^="neu-"] [data-proposal-preview="true"] {
+    background-color: white !important;
+    box-shadow: none !important;
+    color: black !important;
+}
+
+[data-theme^="neu-"] [data-proposal-preview="true"] *,
+[data-theme^="neu-"] [data-proposal-preview="true"] .bg-black {
+    background-color: initial !important;
+    box-shadow: none !important;
+    border: initial !important;
+    color: initial !important;
 }

@@ -23,6 +23,20 @@ export const Layout: React.FC = () => {
   const { user, logout } = useAuth();
   const { isSyncingTemplates } = useAppContext();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [theme, setTheme] = useState(localStorage.getItem('orbit-theme') || 'default');
+
+  React.useEffect(() => {
+    if (theme === 'default') {
+      document.body.removeAttribute('data-theme');
+    } else {
+      document.body.setAttribute('data-theme', theme);
+    }
+    localStorage.setItem('orbit-theme', theme);
+  }, [theme]);
+
+  const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setTheme(e.target.value);
+  };
 
   const navItems = [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
@@ -97,6 +111,20 @@ export const Layout: React.FC = () => {
         </nav>
 
         <div className="p-4 border-t border-neutral-800 space-y-4">
+          <div className="px-2 space-y-2 mb-4">
+            <p className="text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-2">Tema</p>
+            <select
+              value={theme}
+              onChange={handleThemeChange}
+              className="w-full bg-neutral-900 border border-neutral-800 text-neutral-300 text-xs rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
+            >
+              <option value="default">Padrão</option>
+              <option value="neu-black">Neumorphism (Black)</option>
+              <option value="neu-bright">Neumorphism (Bright)</option>
+              <option value="neu-gray">Neumorphism (Gray)</option>
+            </select>
+          </div>
+
           {isSyncingTemplates && (
             <div className="flex items-center gap-3 px-4 py-2 bg-indigo-500/10 text-indigo-400 rounded-lg animate-pulse border border-indigo-500/20">
               <Cloud className="w-4 h-4" />
