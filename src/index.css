@@ -85,19 +85,39 @@
 [data-theme^="neu-"] .bg-neutral-50,
 [data-theme^="neu-"] .bg-neutral-100,
 [data-theme^="neu-"] .bg-black,
-[data-theme^="neu-"] .bg-neutral-900,
-[data-theme^="neu-"] aside,
-[data-theme^="neu-"] header,
-[data-theme^="neu-"] main>div>div>.bg-white {
+[data-theme^="neu-"] .bg-neutral-900 {
     background-color: var(--neu-surface) !important;
-    border: none !important;
-    box-shadow: 8px 8px 16px var(--neu-dark), -8px -8px 16px var(--neu-light) !important;
-    color: var(--neu-text) !important;
+    border-color: var(--neu-bg) !important;
 }
 
-/* Make Sidebar flat inside its own shadow */
+/* Cards, Tables & Containers with shadows */
+[data-theme^="neu-"] .shadow-sm,
+[data-theme^="neu-"] .shadow-md,
+[data-theme^="neu-"] .shadow-xl {
+    background-color: var(--neu-surface) !important;
+    border: none !important;
+    box-shadow: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light) !important;
+}
+
+/* Make Sidebar flat */
 [data-theme^="neu-"] aside {
-    box-shadow: 10px 0 20px var(--neu-dark) !important;
+    box-shadow: 4px 0 10px var(--neu-dark) !important;
+    background-color: var(--neu-surface) !important;
+}
+
+[data-theme^="neu-"] header {
+    background-color: var(--neu-surface) !important;
+    box-shadow: 0 4px 10px var(--neu-dark) !important;
+}
+
+/* Fix table row hover causing white flash on dark/gray modes */
+[data-theme^="neu-"] .hover\:bg-neutral-50:hover,
+[data-theme^="neu-"] tr:hover {
+    background-color: var(--neu-bg) !important;
+}
+
+[data-theme^="neu-"] .hover\:bg-neutral-200:hover {
+    background-color: var(--neu-dark) !important;
 }
 
 /* Inputs */
@@ -106,7 +126,7 @@
 [data-theme^="neu-"] textarea {
     background-color: var(--neu-surface) !important;
     border: none !important;
-    box-shadow: inset 5px 5px 10px var(--neu-dark), inset -5px -5px 10px var(--neu-light) !important;
+    box-shadow: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light) !important;
     color: var(--neu-text) !important;
     outline: none !important;
 }
@@ -114,31 +134,44 @@
 [data-theme^="neu-"] input:focus,
 [data-theme^="neu-"] select:focus,
 [data-theme^="neu-"] textarea:focus {
-    box-shadow: inset 7px 7px 14px var(--neu-dark), inset -7px -7px 14px var(--neu-light) !important;
+    box-shadow: inset 6px 6px 12px var(--neu-dark), inset -6px -6px 12px var(--neu-light) !important;
 }
 
-/* Buttons */
-[data-theme^="neu-"] button,
+/* Small icon buttons (like inside tables) */
+[data-theme^="neu-"] button.p-2,
+[data-theme^="neu-"] a.p-2 {
+    box-shadow: none !important;
+    background-color: transparent !important;
+}
+
+[data-theme^="neu-"] button.p-2:hover,
+[data-theme^="neu-"] a.p-2:hover {
+    box-shadow: inset 2px 2px 5px var(--neu-dark), inset -2px -2px 5px var(--neu-light) !important;
+    background-color: var(--neu-surface) !important;
+}
+
+/* Standard Buttons */
+[data-theme^="neu-"] button:not(.p-2),
 [data-theme^="neu-"] a.bg-black,
 [data-theme^="neu-"] a.bg-white {
     background-color: var(--neu-surface) !important;
     border: none !important;
-    box-shadow: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light) !important;
+    box-shadow: 4px 4px 8px var(--neu-dark), -4px -4px 8px var(--neu-light) !important;
     color: var(--neu-text) !important;
     transition: all 0.2s ease !important;
 }
 
-[data-theme^="neu-"] button:hover,
+[data-theme^="neu-"] button:not(.p-2):hover,
 [data-theme^="neu-"] a.bg-black:hover,
 [data-theme^="neu-"] a.bg-white:hover {
-    box-shadow: 8px 8px 16px var(--neu-dark), -8px -8px 16px var(--neu-light) !important;
+    box-shadow: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light) !important;
     transform: translateY(-1px);
 }
 
-[data-theme^="neu-"] button:active,
+[data-theme^="neu-"] button:not(.p-2):active,
 [data-theme^="neu-"] a.bg-black:active,
 [data-theme^="neu-"] a.bg-white:active {
-    box-shadow: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light) !important;
+    box-shadow: inset 3px 3px 6px var(--neu-dark), inset -3px -3px 6px var(--neu-light) !important;
     transform: translateY(2px);
 }
 
