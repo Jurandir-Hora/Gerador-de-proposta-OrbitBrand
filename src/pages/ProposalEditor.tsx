@@ -570,7 +570,7 @@ export const ProposalEditor: React.FC = () => {
       </div>
 
       {/* Preview Side */}
-      <div className="w-full lg:w-1/2 bg-neutral-200 border border-neutral-300 rounded-xl lg:rounded-r-xl lg:rounded-l-none p-4 lg:p-8 overflow-auto print:w-full print:border-0 print:rounded-none print:p-0">
+      <div className="absolute -left-[9999px] opacity-0 lg:static lg:opacity-100 w-[800px] lg:w-1/2 bg-neutral-200 border border-neutral-300 rounded-xl lg:rounded-r-xl lg:rounded-l-none p-4 lg:p-8 overflow-auto print:w-full print:border-0 print:rounded-none print:p-0">
         <div
           ref={previewRef}
           data-proposal-preview="true"
