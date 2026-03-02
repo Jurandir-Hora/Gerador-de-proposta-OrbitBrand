@@ -4,6 +4,7 @@ export interface AuthUser {
   email: string;
   role: 'master' | 'admin' | 'manager' | 'collaborator';
   avatarUrl?: string;
+  theme?: string;
 }
 
 export interface Proposal {

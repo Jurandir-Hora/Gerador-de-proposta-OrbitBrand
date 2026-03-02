@@ -20,10 +20,16 @@ import { useAuth } from '../context/AuthContext';
 import { useAppContext } from '../context/AppContext';
 
 export const Layout: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const { isSyncingTemplates } = useAppContext();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [theme, setTheme] = useState(localStorage.getItem('orbit-theme') || 'default');
+  const [theme, setTheme] = useState(user?.theme || localStorage.getItem('orbit-theme') || 'default');
+
+  React.useEffect(() => {
+    if (user?.theme) {
+      setTheme(user.theme);
+    }
+  }, [user?.theme]);
 
   React.useEffect(() => {
     if (theme === 'default') {
@@ -34,8 +40,12 @@ export const Layout: React.FC = () => {
     localStorage.setItem('orbit-theme', theme);
   }, [theme]);
 
-  const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setTheme(e.target.value);
+  const handleThemeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newTheme = e.target.value;
+    setTheme(newTheme);
+    if (user) {
+      await updateUser({ theme: newTheme }).catch(err => console.error("Erro ao salvar tema:", err));
+    }
   };
 
   const navItems = [

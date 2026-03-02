@@ -24,7 +24,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  updateUser: (data: { name?: string; avatarUrl?: string }) => Promise<void>;
+  updateUser: (data: { name?: string; avatarUrl?: string; theme?: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -69,7 +69,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             ...baseUser,
             name: firestoreData.name || baseUser.name,
             avatarUrl: firestoreData.avatarUrl || baseUser.avatarUrl,
-            role: firestoreData.role || baseUser.role
+            role: firestoreData.role || baseUser.role,
+            theme: firestoreData.theme || 'default'
           });
         } else {
           // Cria registro inicial no Firestore se não existir
@@ -79,6 +80,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             email: baseUser.email,
             role: baseUser.role,
             avatarUrl: baseUser.avatarUrl || '',
+            theme: 'default',
             createdAt: new Date().toISOString()
           };
           await setDoc(userRef, initialData);
@@ -110,6 +112,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         email: baseUser.email,
         role: baseUser.role,
         avatarUrl: '',
+        theme: 'default',
         createdAt: new Date().toISOString()
       });
 
@@ -129,7 +132,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(null);
   };
 
-  const updateUser = async (data: { name?: string; avatarUrl?: string }) => {
+  const updateUser = async (data: { name?: string; avatarUrl?: string; theme?: string }) => {
     if (auth.currentUser) {
       // Atualiza Firebase Auth Profile
       await updateProfile(auth.currentUser, {
@@ -141,14 +144,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const userRef = doc(db, 'users', auth.currentUser.uid);
       await updateDoc(userRef, {
         ...(data.name ? { name: data.name } : {}),
-        ...(data.avatarUrl !== undefined ? { avatarUrl: data.avatarUrl } : {})
+        ...(data.avatarUrl !== undefined ? { avatarUrl: data.avatarUrl } : {}),
+        ...(data.theme !== undefined ? { theme: data.theme } : {})
       });
 
       // Atualiza estado local
       setUser(prev => prev ? {
         ...prev,
         name: data.name || prev.name,
-        avatarUrl: data.avatarUrl || prev.avatarUrl
+        avatarUrl: data.avatarUrl !== undefined ? data.avatarUrl : prev.avatarUrl,
+        theme: data.theme !== undefined ? data.theme : prev.theme
       } : null);
     }
   };
