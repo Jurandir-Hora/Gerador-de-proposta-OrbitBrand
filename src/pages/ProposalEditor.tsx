@@ -660,11 +660,11 @@ export const ProposalEditor: React.FC = () => {
 
             {/* ── TOTAL BLOCK ── */}
             <div style={{ padding: '28px 40px 40px', display: 'flex', justifyContent: 'flex-end' }}>
-              <div style={{ background: 'linear-gradient(135deg, #0c0c0c 0%, #1e1b3a 100%)', padding: '28px 36px', borderRadius: '18px', minWidth: '300px', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ background: '#ffffff', border: '1.5px solid #d1d5db', padding: '28px 36px', borderRadius: '18px', minWidth: '300px', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', left: 0, top: 0, width: '4px', height: '100%', background: 'linear-gradient(180deg, #7c3aed, #4f46e5)' }} />
-                <div style={{ position: 'absolute', right: '-40px', bottom: '-40px', width: '140px', height: '140px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.04)' }} />
-                <p style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: '3px', textTransform: 'uppercase', margin: '0 0 10px 0' }}>Total do Investimento</p>
-                <p style={{ fontSize: '34px', fontWeight: 900, color: 'white', letterSpacing: '-2px', lineHeight: 1, margin: 0 }}>
+                <div style={{ position: 'absolute', right: '-40px', bottom: '-40px', width: '140px', height: '140px', borderRadius: '50%', border: '1px solid rgba(0,0,0,0.04)' }} />
+                <p style={{ fontSize: '9px', fontWeight: 700, color: '#9ca3af', letterSpacing: '3px', textTransform: 'uppercase', margin: '0 0 10px 0' }}>Total do Investimento</p>
+                <p style={{ fontSize: '34px', fontWeight: 900, color: '#0c0c0c', letterSpacing: '-2px', lineHeight: 1, margin: 0 }}>
                   {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(proposal.total)}
                 </p>
               </div>
