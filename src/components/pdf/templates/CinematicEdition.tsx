@@ -1,21 +1,30 @@
-import React from 'react';
 import { PdfPage } from '../RenderPdfTemplate';
-import { Proposal } from '../../../types';
+import { Proposal, AgencySettings } from '../../../types';
 
 interface TemplateProps {
     proposal: Proposal;
+    settings?: AgencySettings;
 }
 
-export const CinematicEdition: React.FC<TemplateProps> = ({ proposal }) => {
+export const CinematicEdition: React.FC<TemplateProps> = ({ proposal, settings }) => {
     return (
-        <div className="bg-[#e5e5e5] min-h-screen py-10 flex flex-col items-center">
+        <div style={{ backgroundColor: '#e5e5e5', minHeight: '100%', padding: '40px 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             {/* PÁGINA 1: CAPA */}
             <PdfPage
-                className="bg-white text-[#111111]"
-                footerText={`Documento Executivo • Página 1`}
+                style={{ backgroundColor: '#ffffff', color: '#111111' }}
+                footerText={`${settings?.agencyName || 'Orbit Brand'} • Cinematic Edition`}
                 pageNumber={1}
             >
-                <div className="flex-1 flex flex-col pt-10">
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                    {/* Header Branding */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '80px', borderBottom: '1px solid #e5e7eb', paddingBottom: '20px' }}>
+                        {settings?.logoUrl ? (
+                            <img src={settings.logoUrl} alt={settings.agencyName} style={{ height: '35px', objectFit: 'contain' }} />
+                        ) : (
+                            <span style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '0.05em' }}>{settings?.agencyName?.toUpperCase()}</span>
+                        )}
+                        <span style={{ fontSize: '10px', color: '#6b7280' }}>{settings?.email}</span>
+                    </div>
                     <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '42px', color: '#111', marginBottom: '20px', lineHeight: '1.2' }}>
                         {proposal.projectName || 'Produção Cinematográfica & Estratégia Social'}
                     </h1>
@@ -29,7 +38,7 @@ export const CinematicEdition: React.FC<TemplateProps> = ({ proposal }) => {
 
             {/* PÁGINA 2: INVESTIMENTO */}
             <PdfPage
-                className="bg-white text-[#111111]"
+                style={{ backgroundColor: '#ffffff', color: '#111111' }}
                 footerText={`Documento Executivo • Página 2`}
                 pageNumber={2}
             >
@@ -53,7 +62,7 @@ export const CinematicEdition: React.FC<TemplateProps> = ({ proposal }) => {
                             <tr key={idx}>
                                 <td style={{ padding: '25px 0', borderBottom: '1px solid #e5e7eb', fontSize: '14px' }}>
                                     <span style={{ fontWeight: 600 }}>{service.name}</span>
-                                    {service.quantity > 1 && <span className="text-[#9ca3af] ml-2">({service.quantity}x)</span>}
+                                    {service.quantity > 1 && <span style={{ color: '#9ca3af', marginLeft: '8px' }}>({service.quantity}x)</span>}
                                 </td>
                                 <td style={{ padding: '25px 0', borderBottom: '1px solid #e5e7eb', fontSize: '14px', textAlign: 'right' }}>
                                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(service.price * (service.quantity || 1))}

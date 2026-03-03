@@ -187,17 +187,49 @@
     color: var(--neu-text-light) !important;
 }
 
-/* Protect the PDF Preview from the theme */
-[data-theme^="neu-"] [data-proposal-preview="true"] {
-    background-color: white !important;
-    box-shadow: none !important;
-    color: black !important;
+/* PDF Preview container - Neutralizar para que o Template mande em tudo */
+[data-proposal-preview="true"],
+[data-proposal-preview="true"] * {
+    box-shadow: none;
 }
 
-[data-theme^="neu-"] [data-proposal-preview="true"] *,
-[data-theme^="neu-"] [data-proposal-preview="true"] .bg-black {
-    background-color: initial !important;
-    box-shadow: none !important;
-    border: initial !important;
-    color: initial !important;
+/* STABILITY ENGINE ANTIDOTE: Isolar templates do tema Neumorphism */
+[data-proposal-preview="true"].bg-white,
+[data-proposal-preview="true"] .bg-white {
+    background-color: #ffffff !important;
+}
+
+[data-proposal-preview="true"].bg-neutral-50,
+[data-proposal-preview="true"] .bg-neutral-50 {
+    background-color: #fafafa !important;
+}
+
+[data-proposal-preview="true"].bg-neutral-100,
+[data-proposal-preview="true"] .bg-neutral-100 {
+    background-color: #f5f5f5 !important;
+}
+
+[data-proposal-preview="true"].bg-neutral-900,
+[data-proposal-preview="true"] .bg-neutral-900 {
+    background-color: #171717 !important;
+}
+
+[data-proposal-preview="true"].text-neutral-900,
+[data-proposal-preview="true"] .text-neutral-900 {
+    color: #171717 !important;
+}
+
+[data-proposal-preview="true"].text-neutral-400,
+[data-proposal-preview="true"] .text-neutral-400 {
+    color: #a3a3a3 !important;
+}
+
+[data-proposal-preview="true"].text-black,
+[data-proposal-preview="true"] .text-black {
+    color: #000000 !important;
+}
+
+[data-proposal-preview="true"].text-white,
+[data-proposal-preview="true"] .text-white {
+    color: #ffffff !important;
 }

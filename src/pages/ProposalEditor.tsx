@@ -120,13 +120,14 @@ export const ProposalEditor: React.FC = () => {
             if (currentPage > 1) pdf.addPage();
 
             const pageEl = pages[i] as HTMLElement;
-            const originalBg = pageEl.style.backgroundColor || window.getComputedStyle(pageEl).backgroundColor;
-            const isDark = originalBg === 'rgb(11, 11, 12)' || originalBg === '#0b0b0c' || pageEl.className.includes('bg-[#0b0b0c]');
+            // Detecção confiável via atributo data-dark-theme (sem adivinhação de cor)
+            const isDark = pageEl.getAttribute('data-dark-theme') === 'true';
+            const bgColor = isDark ? '#0b0b0c' : '#ffffff';
 
             const canvas = await html2canvas(pageEl, {
-              scale: 3, // Qualidade Retina
+              scale: 2, // Qualidade balanceada para evitar erros de memória
               useCORS: true,
-              backgroundColor: isDark ? '#0b0b0c' : '#ffffff',
+              backgroundColor: bgColor,
               logging: false,
               allowTaint: true,
               scrollX: 0,

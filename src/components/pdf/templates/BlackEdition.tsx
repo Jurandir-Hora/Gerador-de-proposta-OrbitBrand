@@ -1,79 +1,102 @@
-import React from 'react';
 import { PdfPage } from '../RenderPdfTemplate';
-import { Proposal } from '../../../types'; // Adjust imports as necessary
+import { Proposal, AgencySettings } from '../../../types';
 
 interface TemplateProps {
     proposal: Proposal;
+    settings?: AgencySettings;
 }
 
-export const BlackEdition: React.FC<TemplateProps> = ({ proposal }) => {
-    // Definimos a cor ouro padrão para reuso
-    const GOLD = '#c6a85a';
-    const BG_DARK = '#0b0b0c';
-    const TEXT_LIGHT = '#f3f4f6';
-
-    const sectionTitleStyle: React.CSSProperties = {
-        fontSize: '12px',
-        letterSpacing: '0.3em',
-        textTransform: 'uppercase',
-        color: GOLD,
-        marginTop: '20px',
-        marginBottom: '25px',
-        fontWeight: 600
-    };
-
+export const BlackEdition: React.FC<TemplateProps> = ({ proposal, settings }) => {
     return (
-        <div style={{ backgroundColor: '#222', minHeight: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ backgroundColor: '#e5e5e5', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+
             {/* PÁGINA 1: CAPA */}
             <PdfPage
-                className="bg-[#0b0b0c] text-[#f3f4f6]"
-                style={{ backgroundColor: BG_DARK }}
-                footerText={`Documento Confidencial • Página 1`}
+                darkTheme={true}
+                style={{ backgroundColor: '#0b0b0c', color: '#f3f4f6' }}
+                footerText={`${settings?.agencyName || 'Orbit Brand'} • Black Edition`}
                 pageNumber={1}
             >
-                <div className="flex flex-col h-full" style={{ color: TEXT_LIGHT }}>
-                    <div style={{ color: GOLD, fontSize: '11px', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 800, marginBottom: '20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', color: '#ffffff', height: '100%' }}>
+                    {/* Agencia Branding */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '80px', borderBottom: '1px solid #1f2937', paddingBottom: '20px' }}>
+                        {settings?.logoUrl ? (
+                            <img src={settings.logoUrl} alt={settings.agencyName} style={{ height: '35px', objectFit: 'contain' }} />
+                        ) : (
+                            <span style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '0.05em' }}>{settings?.agencyName?.toUpperCase()}</span>
+                        )}
+                        <span style={{ fontSize: '10px', color: '#9ca3af' }}>{settings?.email}</span>
+                    </div>
+                    {/* Rótulo dourado */}
+                    <div style={{ color: '#c6a85a', fontSize: '12px', letterSpacing: '0.3em', textTransform: 'uppercase' }}>
                         Dossiê Executivo Confidencial
                     </div>
 
+                    {/* Título principal */}
                     <h1 style={{
                         fontFamily: "'Playfair Display', serif",
                         fontSize: '44px',
-                        color: TEXT_LIGHT,
-                        marginTop: '20px',
-                        marginBottom: '40px',
+                        margin: '20px 0',
                         lineHeight: '1.2',
-                        fontWeight: 700
+                        fontWeight: 700,
+                        color: '#f3f4f6'
                     }}>
                         {proposal.projectName || 'Produção Cinematográfica de Alto Padrão'}
                     </h1>
 
-                    <div style={{ marginTop: 'auto', marginBottom: '80px', fontSize: '14px', lineHeight: '2' }}>
-                        <p style={{ margin: 0 }}><strong style={{ color: 'white', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.1em', display: 'inline-block', width: '80px' }}>Cliente:</strong> {proposal.clientName}</p>
-                        <p style={{ margin: 0 }}><strong style={{ color: 'white', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.1em', display: 'inline-block', width: '80px' }}>Data:</strong> {new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</p>
+                    {/* Dados do cliente */}
+                    <div style={{ marginTop: '40px', fontSize: '14px', lineHeight: '2' }}>
+                        <div><strong style={{ color: '#f3f4f6' }}>Cliente:</strong> {proposal.clientName}</div>
+                        <div><strong style={{ color: '#f3f4f6' }}>Data:</strong> {new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</div>
                     </div>
                 </div>
             </PdfPage>
 
             {/* PÁGINA 2: INVESTIMENTO */}
             <PdfPage
-                className="bg-[#0b0b0c] text-[#f3f4f6]"
-                style={{ backgroundColor: BG_DARK }}
-                footerText={`Documento Confidencial • Página 2`}
+                darkTheme={true}
+                className="!text-white"
+                style={{ backgroundColor: '#0b0b0c', color: '#f3f4f6' }}
+                footerText="Documento Confidencial • Página 2"
                 pageNumber={2}
             >
-                <div className="flex flex-col h-full" style={{ color: TEXT_LIGHT }}>
-                    <div style={sectionTitleStyle}>
+                <div style={{ display: 'flex', flexDirection: 'column', color: '#ffffff' }}>
+                    {/* Título da seção */}
+                    <div style={{
+                        fontSize: '12px',
+                        letterSpacing: '0.3em',
+                        textTransform: 'uppercase',
+                        color: '#c6a85a',
+                        marginTop: '20px',
+                        marginBottom: '25px'
+                    }}>
                         Investimento
                     </div>
 
-                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
+                    {/* Tabela */}
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
                             <tr>
-                                <th style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#9ca3af', paddingBottom: '15px', borderBottom: '1px solid #1f2937', textAlign: 'left' }}>
+                                <th style={{
+                                    fontSize: '11px',
+                                    letterSpacing: '0.2em',
+                                    textTransform: 'uppercase',
+                                    color: '#9ca3af',
+                                    paddingBottom: '15px',
+                                    borderBottom: '1px solid #1f2937',
+                                    textAlign: 'left'
+                                }}>
                                     Entrega
                                 </th>
-                                <th style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#9ca3af', paddingBottom: '15px', borderBottom: '1px solid #1f2937', textAlign: 'right' }}>
+                                <th style={{
+                                    fontSize: '11px',
+                                    letterSpacing: '0.2em',
+                                    textTransform: 'uppercase',
+                                    color: '#9ca3af',
+                                    paddingBottom: '15px',
+                                    borderBottom: '1px solid #1f2937',
+                                    textAlign: 'right'
+                                }}>
                                     Valor
                                 </th>
                             </tr>
@@ -81,11 +104,11 @@ export const BlackEdition: React.FC<TemplateProps> = ({ proposal }) => {
                         <tbody>
                             {proposal.services.map((service, idx) => (
                                 <tr key={idx}>
-                                    <td style={{ padding: '25px 0', borderBottom: '1px solid #1f2937', fontSize: '14px' }}>
-                                        <div style={{ fontWeight: 600 }}>{service.name}</div>
-                                        <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '4px' }}>{service.description}</div>
+                                    <td style={{ padding: '25px 0', borderBottom: '1px solid #1f2937', fontSize: '14px', color: '#f3f4f6' }}>
+                                        <span style={{ fontWeight: 600 }}>{service.name}</span>
+                                        {service.description ? <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '4px' }}>{service.description}</div> : null}
                                     </td>
-                                    <td style={{ padding: '25px 0', borderBottom: '1px solid #1f2937', fontSize: '14px', textAlign: 'right', fontWeight: 600 }}>
+                                    <td style={{ padding: '25px 0', borderBottom: '1px solid #1f2937', fontSize: '14px', textAlign: 'right', color: '#f3f4f6', fontWeight: 600 }}>
                                         {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(service.price * (service.quantity || 1))}
                                     </td>
                                 </tr>
@@ -93,11 +116,19 @@ export const BlackEdition: React.FC<TemplateProps> = ({ proposal }) => {
                         </tbody>
                     </table>
 
-                    <div style={{ marginTop: 'auto', marginBottom: '40px', border: `1px solid ${GOLD}`, padding: '40px', position: 'relative' }}>
-                        <span style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#9ca3af', display: 'block', marginBottom: '10px' }}>
+                    {/* Total */}
+                    <div style={{ marginTop: '50px', border: '1px solid #c6a85a', padding: '30px' }}>
+                        <span style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#9ca3af' }}>
                             Investimento Total
                         </span>
-                        <h2 style={{ color: GOLD, fontSize: '42px', fontWeight: 700, margin: 0, fontFamily: "'Playfair Display', serif" }}>
+                        <h2 style={{
+                            color: '#c6a85a',
+                            marginTop: '15px',
+                            marginBottom: 0,
+                            fontSize: '32px',
+                            fontWeight: 700,
+                            fontFamily: "'Playfair Display', serif"
+                        }}>
                             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(proposal.total)}
                         </h2>
                     </div>
