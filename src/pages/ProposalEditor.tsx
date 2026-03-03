@@ -6,6 +6,8 @@ import { Save, ArrowLeft, Trash2, Plus, Printer, Share2, FileDown, Image, Link a
 import { v4 as uuidv4 } from 'uuid';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { DynamicProposalRenderer, TEMPLATE_REGISTRY, getTemplateLabel, resolveTemplate } from '../components/pdf/TemplateManager';
+import { Palette, Sparkles, BrainCircuit } from 'lucide-react';
 
 export const ProposalEditor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -13,7 +15,7 @@ export const ProposalEditor: React.FC = () => {
   const { getProposal, updateProposal, loading: contextLoading, agencySettings } = useAppContext();
 
   const [proposal, setProposal] = useState<Proposal | null>(null);
-  const [activeTab, setActiveTab] = useState<'details' | 'services' | 'terms' | 'media'>('details');
+  const [activeTab, setActiveTab] = useState<'details' | 'services' | 'terms' | 'media' | 'design'>('details');
   const previewRef = useRef<HTMLDivElement | null>(null);
   const mainContentRef = useRef<HTMLDivElement | null>(null);
   const mediaSectionRef = useRef<HTMLDivElement | null>(null);
@@ -108,33 +110,61 @@ export const ProposalEditor: React.FC = () => {
       const footerHeight = 15;
       const pageContentHeight = pdfHeight - (footerHeight + margin * 2 + 10); // Aumentado o respiro de segurança
 
-      const addDecorations = (pdfObj: any, pageNum: number, totalPages?: number) => {
-        pdfObj.setFontSize(8);
-        pdfObj.setTextColor(140, 140, 140);
-        const footerText = `${agencySettings.footerText} | Página ${pageNum}`;
-        const textWidth = pdfObj.getTextWidth(footerText);
-        // Posicionado com uma margem mais segura do fundo
-        pdfObj.text(footerText, (pdfWidth - textWidth) / 2, pdfHeight - 10);
-        pdfObj.setFontSize(7);
-        pdfObj.text(`AUTENTICAÇÃO: ${proposalNumber}-${proposal.id.substring(0, 4)}`, margin, pdfHeight - 10);
-        pdfObj.text(new Date().toLocaleDateString('pt-BR'), pdfWidth - margin - 15, pdfHeight - 10);
+      const capturePdfPages = async (container: HTMLElement, startPage: number) => {
+        const pages = container.querySelectorAll('.pdf-page');
+        let currentPage = startPage;
+
+        if (pages.length > 0) {
+          // Nova lógica: captura cada página individualmente garantindo fidelidade total
+          for (let i = 0; i < pages.length; i++) {
+            if (currentPage > 1) pdf.addPage();
+
+            const pageEl = pages[i] as HTMLElement;
+            const originalBg = pageEl.style.backgroundColor || window.getComputedStyle(pageEl).backgroundColor;
+            const isDark = originalBg === 'rgb(11, 11, 12)' || originalBg === '#0b0b0c' || pageEl.className.includes('bg-[#0b0b0c]');
+
+            const canvas = await html2canvas(pageEl, {
+              scale: 3, // Qualidade Retina
+              useCORS: true,
+              backgroundColor: isDark ? '#0b0b0c' : '#ffffff',
+              logging: false,
+              allowTaint: true,
+              scrollX: 0,
+              scrollY: 0,
+              width: pageEl.offsetWidth,
+              height: pageEl.offsetHeight
+            });
+
+            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+
+            // Inserir imagem preenchendo a folha A4 completa
+            pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+
+            // Adicionar informações extras sutilmente no topo para não quebrar o layout inferior
+            pdf.setFontSize(6);
+            pdf.setTextColor(isDark ? 100 : 180, isDark ? 100 : 180, isDark ? 100 : 180); // Cinza discreto que não queima
+            pdf.text(`AUTENTICAÇÃO: ${proposalNumber}-${proposal.id.substring(0, 4)}`, margin, 5);
+            pdf.text(today, pdfWidth - margin - 15, 5);
+
+            currentPage++;
+          }
+          return currentPage;
+        } else {
+          // Fallback (lógica antiga fatiada para conteúdo sem motor stability, ex: mídia isolada)
+          return await captureFallback(container, startPage);
+        }
       };
 
-      const drawFooterMask = (pdfObj: any) => {
-        pdfObj.setFillColor(255, 255, 255);
-        // Máscara um pouco maior para garantir que o conteúdo não encoste no texto do rodapé
-        pdfObj.rect(0, pdfHeight - (footerHeight + margin + 5), pdfWidth, footerHeight + margin + 5, 'F');
-      };
-
-      const captureAndAddPart = async (element: HTMLElement, startPage: number) => {
+      const captureFallback = async (element: HTMLElement, startPage: number) => {
+        const isDark = element.innerHTML.includes('#0b0b0c');
         const canvas = await html2canvas(element, {
-          scale: 2,
+          scale: 3,
           useCORS: true,
-          backgroundColor: '#ffffff',
-          windowWidth: 1000,
+          backgroundColor: isDark ? '#0b0b0c' : '#ffffff',
+          logging: false
         });
 
-        const imgData = canvas.toDataURL('image/jpeg', 0.85);
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
         const imgWidth = pdfWidth - (margin * 2);
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
@@ -144,16 +174,7 @@ export const ProposalEditor: React.FC = () => {
 
         while (heightLeft > 0) {
           if (currentPage > startPage) pdf.addPage();
-
           pdf.addImage(imgData, 'JPEG', margin, margin - position, imgWidth, imgHeight, undefined, 'FAST');
-
-          // Mascarar topo e rodapé para limpeza
-          pdf.setFillColor(255, 255, 255);
-          pdf.rect(0, 0, pdfWidth, margin, 'F');
-          drawFooterMask(pdf);
-
-          addDecorations(pdf, currentPage);
-
           position += pageContentHeight;
           heightLeft -= pageContentHeight;
           if (heightLeft > 5) currentPage++;
@@ -161,13 +182,12 @@ export const ProposalEditor: React.FC = () => {
         return currentPage;
       };
 
-      // Parte 1: Conteúdo Principal
-      let lastPage = await captureAndAddPart(mainContentRef.current, 1);
+      // Parte 1: Conteúdo Principal usando a inteligência de paginação
+      let lastPage = await capturePdfPages(mainContentRef.current, 1);
 
-      // Parte 2: Mídia (Se existir)
+      // Parte 2: Mídia (Se existir) - não usa pdf-page, então falha para o slice
       if (proposal.media.length > 0 && mediaSectionRef.current) {
-        pdf.addPage();
-        lastPage = await captureAndAddPart(mediaSectionRef.current, lastPage + 1);
+        lastPage = await captureFallback(mediaSectionRef.current, lastPage);
       }
 
       // Exportação
@@ -304,6 +324,12 @@ export const ProposalEditor: React.FC = () => {
             onClick={() => setActiveTab('media')}
           >
             Mídia
+          </button>
+          <button
+            className={`flex-1 py-3 text-sm font-medium border-b-2 ${activeTab === 'design' ? 'border-black text-black' : 'border-transparent text-neutral-500 hover:text-black'}`}
+            onClick={() => setActiveTab('design')}
+          >
+            Design
           </button>
         </div>
 
@@ -566,179 +592,77 @@ export const ProposalEditor: React.FC = () => {
               </div>
             </div>
           )}
+
+          {activeTab === 'design' && (
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 animate-in slide-in-from-right-4 duration-300">
+              <div className="bg-indigo-50 border border-indigo-100 p-6 rounded-2xl flex items-center gap-4">
+                <div className="p-3 bg-indigo-500 rounded-xl shadow-lg">
+                  <Palette className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-black text-indigo-900 uppercase text-sm tracking-tight">Identidade Visual da Proposta</h3>
+                  <p className="text-indigo-600 text-xs">Escolha como o cliente verá sua proposta ou deixe a IA decidir.</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <label className="block text-[10px] font-black uppercase text-neutral-400 tracking-widest ml-1">Modo de Seleção</label>
+                <div className="grid grid-cols-1 gap-3">
+                  <button
+                    onClick={() => setProposal({ ...proposal!, templateId: '' })}
+                    className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${!proposal?.templateId ? 'border-black bg-neutral-900 text-white shadow-xl' : 'border-neutral-100 bg-neutral-50 text-neutral-500'}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <BrainCircuit className={`w-5 h-5 ${!proposal?.templateId ? 'text-indigo-400' : 'text-neutral-300'}`} />
+                      <div className="text-left">
+                        <p className="font-black uppercase text-xs">Automático (DLI)</p>
+                        <p className="text-[10px] opacity-60">A inteligência decide baseada no ticket e projeto.</p>
+                      </div>
+                    </div>
+                    {!proposal?.templateId && <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />}
+                  </button>
+
+                  <div className="pt-4 border-t border-neutral-100">
+                    <label className="block text-[10px] font-black uppercase text-neutral-400 tracking-widest mb-3 ml-1">Seleção Manual (Override)</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {Object.keys(TEMPLATE_REGISTRY).map(id => (
+                        <button
+                          key={id}
+                          onClick={() => setProposal({ ...proposal!, templateId: id })}
+                          className={`flex flex-col items-start p-4 rounded-2xl border-2 transition-all text-left ${proposal?.templateId === id ? 'border-black bg-white ring-2 ring-black/5' : 'border-neutral-100 hover:border-neutral-200'}`}
+                        >
+                          <span className="font-black text-xs uppercase mb-1">{getTemplateLabel(id)}</span>
+                          <span className="text-[9px] text-neutral-400">ID: {id}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {!proposal?.templateId && (
+                <div className="bg-neutral-900 text-white p-6 rounded-2xl shadow-lg animate-in fade-in zoom-in-95 duration-500">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Sparkles className="w-5 h-5 text-indigo-400" />
+                    <p className="font-black uppercase text-[10px] tracking-widest text-indigo-400">Sugestão da Inteligência</p>
+                  </div>
+                  <p className="text-sm border-l-2 border-indigo-500 pl-4 py-1 italic text-neutral-300">
+                    Com base no valor de {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(proposal?.total || 0)}, o template sugerido é <strong>{getTemplateLabel(resolveTemplate(proposal!, agencySettings))}</strong>.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Preview Side */}
-      <div className="absolute -left-[9999px] opacity-0 lg:static lg:opacity-100 w-[800px] lg:w-1/2 bg-neutral-200 border border-neutral-300 rounded-xl lg:rounded-r-xl lg:rounded-l-none p-4 lg:p-8 overflow-auto print:w-full print:border-0 print:rounded-none print:p-0">
+      {/* Preview Side - Using the Stability Engine via DynamicProposalRenderer */}
+      <div className="absolute -left-[9999px] opacity-0 lg:static lg:opacity-100 w-1/2 bg-neutral-200 border border-neutral-300 rounded-xl lg:rounded-r-xl lg:rounded-l-none p-4 lg:p-8 overflow-auto print:p-0 print:border-0 print:w-full">
         <div
-          ref={previewRef}
-          data-proposal-preview="true"
-          className="shadow-2xl mx-auto w-full max-w-[800px] print:shadow-none print:w-full overflow-hidden"
-          style={{ background: 'white', fontFamily: "'Helvetica Neue', Arial, sans-serif" }}
+          ref={mainContentRef}
+          className="shadow-2xl mx-auto w-[794px] print:shadow-none print:w-full"
         >
-          <div ref={mainContentRef}>
-
-            {/* ── COVER HEADER ── */}
-            <div style={{ background: '#0c0c0c', padding: '48px 52px', position: 'relative', overflow: 'hidden' }}>
-              {/* Purple accent stripe */}
-              <div style={{ position: 'absolute', top: 0, left: 0, width: '5px', height: '100%', background: 'linear-gradient(180deg, #7c3aed, #4f46e5)' }} />
-              {/* Decorative rings */}
-              <div style={{ position: 'absolute', bottom: '-60px', right: '-60px', width: '260px', height: '260px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.04)' }} />
-              <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '160px', height: '160px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.06)' }} />
-              {/* Diagonal gradient overlay */}
-              <div style={{ position: 'absolute', top: 0, right: 0, width: '50%', height: '100%', background: 'linear-gradient(135deg, transparent 30%, rgba(79,70,229,0.06) 100%)' }} />
-
-              {/* Logo / Agency Name */}
-              <div style={{ position: 'relative', zIndex: 2 }}>
-                {agencySettings.logoUrl ? (
-                  <img src={agencySettings.logoUrl} alt={agencySettings.agencyName} style={{ height: '60px', objectFit: 'contain', marginBottom: '10px' }} />
-                ) : (
-                  <h1 style={{ fontSize: '54px', fontWeight: 900, color: 'white', letterSpacing: '-3px', lineHeight: 1, marginBottom: '10px', fontStyle: 'italic', margin: '0 0 10px 0' }}>
-                    {agencySettings.agencyName.split(' ')[0].toUpperCase()}
-                  </h1>
-                )}
-                <p style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: '5px', textTransform: 'uppercase', margin: 0 }}>
-                  {agencySettings.proposalTitle}
-                </p>
-              </div>
-
-              {/* Top-right doc info */}
-              <div style={{ position: 'absolute', top: '48px', right: '52px', textAlign: 'right', zIndex: 2 }}>
-                <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.25)', letterSpacing: '3px', textTransform: 'uppercase', margin: '0 0 6px 0' }}>Proposta Comercial</p>
-                <p style={{ fontSize: '14px', fontWeight: 800, color: 'rgba(255,255,255,0.7)', margin: '0 0 4px 0' }}>#{proposal.id.split('-').pop()?.toUpperCase()}</p>
-                <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', margin: 0 }}>{new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
-              </div>
-            </div>
-
-            {/* ── CLIENT & PROJECT INFO ── */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderBottom: '1px solid #e5e7eb' }}>
-              <div style={{ padding: '32px 40px', borderRight: '1px solid #e5e7eb' }}>
-                <p style={{ fontSize: '9px', fontWeight: 700, color: '#9ca3af', letterSpacing: '3px', textTransform: 'uppercase', margin: '0 0 10px 0' }}>Destinado A</p>
-                <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0c0c0c', margin: '0 0 4px 0', lineHeight: 1.2 }}>{proposal.clientName || 'Nome do Cliente'}</h2>
-                <p style={{ fontSize: '13px', color: '#6b7280', margin: '0 0 4px 0' }}>{proposal.clientEmail}</p>
-                {proposal.clientDocument && <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>CPF/CNPJ: {proposal.clientDocument}</p>}
-              </div>
-              <div style={{ padding: '32px 40px' }}>
-                <p style={{ fontSize: '9px', fontWeight: 700, color: '#9ca3af', letterSpacing: '3px', textTransform: 'uppercase', margin: '0 0 10px 0' }}>Projeto</p>
-                <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0c0c0c', margin: '0 0 4px 0', lineHeight: 1.2 }}>{proposal.projectName || 'Nome do Projeto'}</h2>
-                <p style={{ fontSize: '12px', color: '#9ca3af', margin: '0 0 14px 0' }}>{new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#f0fdf4', padding: '4px 12px', borderRadius: '20px', border: '1px solid #bbf7d0' }}>
-                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e', flexShrink: 0 }} />
-                  <span style={{ fontSize: '9px', fontWeight: 700, color: '#16a34a', textTransform: 'uppercase', letterSpacing: '1px' }}>Válido por 15 dias</span>
-                </div>
-              </div>
-            </div>
-
-            {/* ── SERVICES TABLE ── */}
-            <div style={{ padding: '40px 40px 0' }}>
-              <p style={{ fontSize: '9px', fontWeight: 700, color: '#9ca3af', letterSpacing: '4px', textTransform: 'uppercase', margin: '0 0 20px 0' }}>Escopo de Serviços</p>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ background: '#0c0c0c' }}>
-                    <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.45)', letterSpacing: '2px', textTransform: 'uppercase' }}>Serviço / Descrição</th>
-                    <th style={{ padding: '14px 16px', textAlign: 'center', fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.45)', letterSpacing: '2px', textTransform: 'uppercase', width: '60px' }}>Qtd</th>
-                    <th style={{ padding: '14px 16px', textAlign: 'right', fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.45)', letterSpacing: '2px', textTransform: 'uppercase', width: '130px' }}>Valor Un.</th>
-                    <th style={{ padding: '14px 16px', textAlign: 'right', fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.45)', letterSpacing: '2px', textTransform: 'uppercase', width: '130px' }}>Subtotal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {proposal.services.map((service, idx) => (
-                    <tr key={idx} style={{ borderBottom: '1px solid #f3f4f6', background: idx % 2 === 0 ? '#ffffff' : '#fafafa' }}>
-                      <td style={{ padding: '20px 16px', verticalAlign: 'top' }}>
-                        <p style={{ fontWeight: 800, fontSize: '13px', color: '#0c0c0c', textTransform: 'uppercase', letterSpacing: '-0.2px', lineHeight: 1.2, margin: '0 0 6px 0' }}>{service.name}</p>
-                        {service.description && <p style={{ fontSize: '12px', color: '#9ca3af', lineHeight: 1.7, margin: 0 }}>{service.description}</p>}
-                      </td>
-                      <td style={{ padding: '20px 16px', textAlign: 'center', fontSize: '14px', fontWeight: 600, color: '#374151', verticalAlign: 'top' }}>{service.quantity}</td>
-                      <td style={{ padding: '20px 16px', textAlign: 'right', fontSize: '13px', color: '#374151', verticalAlign: 'top' }}>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(service.price)}</td>
-                      <td style={{ padding: '20px 16px', textAlign: 'right', fontSize: '14px', fontWeight: 800, color: '#0c0c0c', verticalAlign: 'top' }}>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(service.price * service.quantity)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* ── TOTAL BLOCK ── */}
-            <div style={{ padding: '28px 40px 40px', display: 'flex', justifyContent: 'flex-end' }}>
-              <div style={{ background: '#ffffff', border: '1.5px solid #d1d5db', padding: '28px 36px', borderRadius: '18px', minWidth: '300px', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', left: 0, top: 0, width: '4px', height: '100%', background: 'linear-gradient(180deg, #7c3aed, #4f46e5)' }} />
-                <div style={{ position: 'absolute', right: '-40px', bottom: '-40px', width: '140px', height: '140px', borderRadius: '50%', border: '1px solid rgba(0,0,0,0.04)' }} />
-                <p style={{ fontSize: '9px', fontWeight: 700, color: '#9ca3af', letterSpacing: '3px', textTransform: 'uppercase', margin: '0 0 10px 0' }}>Total do Investimento</p>
-                <p style={{ fontSize: '34px', fontWeight: 900, color: '#0c0c0c', letterSpacing: '-2px', lineHeight: 1, margin: 0 }}>
-                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(proposal.total)}
-                </p>
-              </div>
-            </div>
-
-            {/* ── TERMS ── */}
-            {proposal.terms && (
-              <div style={{ padding: '60px 40px 40px' }}>
-                <div style={{ background: '#f9fafb', borderRadius: '16px', padding: '28px 32px', borderLeft: '4px solid #0c0c0c', border: '1px solid #f3f4f6', borderLeftWidth: '4px', borderLeftColor: '#0c0c0c' }}>
-                  <p style={{ fontSize: '9px', fontWeight: 700, color: '#9ca3af', letterSpacing: '4px', textTransform: 'uppercase', margin: '0 0 14px 0' }}>Termos e Condições</p>
-                  <p style={{ fontSize: '12px', color: '#6b7280', whiteSpace: 'pre-wrap', lineHeight: 1.9, margin: 0 }}>{proposal.terms}</p>
-                </div>
-              </div>
-            )}
-
-            {/* ── SIGNATURE BLOCK ── */}
-            <div style={{ padding: '0 40px 48px', marginTop: '350px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', pageBreakInside: 'avoid' }}>
-              <div>
-                <div style={{ height: '60px' }} />
-                <div style={{ borderTop: '2px solid #0c0c0c', paddingTop: '12px' }}>
-                  <p style={{ fontSize: '12px', fontWeight: 800, color: '#0c0c0c', margin: '0 0 2px 0' }}>{agencySettings.agencyName}</p>
-                  <p style={{ fontSize: '11px', color: '#9ca3af', margin: 0 }}>Prestador de Serviços</p>
-                </div>
-              </div>
-              <div>
-                <div style={{ height: '60px' }} />
-                <div style={{ borderTop: '2px solid #e5e7eb', paddingTop: '12px' }}>
-                  <p style={{ fontSize: '12px', fontWeight: 800, color: '#0c0c0c', margin: '0 0 2px 0' }}>{proposal.clientName || 'Nome do Cliente'}</p>
-                  <p style={{ fontSize: '11px', color: '#9ca3af', margin: 0 }}>Contratante</p>
-                </div>
-              </div>
-            </div>
-
-            {/* ── FOOTER ── */}
-            <div style={{ background: '#0c0c0c', padding: '18px 52px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', letterSpacing: '2px', textTransform: 'uppercase', margin: 0 }}>
-                {agencySettings.agencyName} © {new Date().getFullYear()}
-              </p>
-              <div style={{ textAlign: 'right' }}>
-                {agencySettings.email && <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', margin: '0 0 2px 0' }}>{agencySettings.email}</p>}
-                {agencySettings.cnpj && <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', margin: 0 }}>CNPJ: {agencySettings.cnpj}</p>}
-              </div>
-            </div>
-
-          </div>
-
-          {/* ── MEDIA SECTION ── */}
-          {proposal.media.length > 0 && (
-            <div ref={mediaSectionRef} style={{ padding: '48px 40px', background: 'white' }}>
-              <p style={{ fontSize: '9px', fontWeight: 700, color: '#9ca3af', letterSpacing: '4px', textTransform: 'uppercase', margin: '0 0 8px 0' }}>Referências & Mídia</p>
-              <div style={{ borderBottom: '1px solid #e5e7eb', marginBottom: '32px' }} />
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                {proposal.media.map((m, idx) => (
-                  <div key={idx}>
-                    <div style={{ aspectRatio: '3/2', width: '100%', maxHeight: '260px', borderRadius: '16px', overflow: 'hidden', border: '1px solid #f3f4f6', background: '#f9fafb', marginBottom: '10px' }}>
-                      {m.type === 'image' ? (
-                        <img src={m.url} alt={m.caption} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        <div style={{ width: '100%', height: '100%', background: '#0c0c0c', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', textAlign: 'center' }}>
-                          <Play style={{ width: '28px', height: '28px', color: 'white', opacity: 0.15, marginBottom: '8px' }} />
-                          <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '2px', margin: '0 0 6px 0' }}>Conteúdo em Vídeo</p>
-                          <p style={{ fontSize: '9px', color: '#818cf8', fontWeight: 600, wordBreak: 'break-all', margin: 0 }}>{m.url}</p>
-                        </div>
-                      )}
-                    </div>
-                    {m.caption && (
-                      <p style={{ fontSize: '9px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '2px', lineHeight: 1.4, margin: 0 }}>{m.caption}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
+          <DynamicProposalRenderer proposal={proposal} settings={agencySettings} />
         </div>
       </div>
     </div>

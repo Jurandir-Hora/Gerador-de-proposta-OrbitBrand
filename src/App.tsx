@@ -13,6 +13,7 @@ import { AuthPage } from './pages/AuthPage';
 import { UserManagement } from './pages/UserManagement';
 import { Fiscal } from './pages/Fiscal';
 import { Glossary } from './pages/Glossary';
+import TestPreview from './pages/TestPreview';
 
 const ProtectedRoutes: React.FC = () => {
   const { user, loading } = useAuth();
@@ -40,6 +41,7 @@ const ProtectedRoutes: React.FC = () => {
         <Route path="analytics" element={<Analytics />} />
         <Route path="fiscal" element={<Fiscal />} />
         <Route path="glossary" element={<Glossary />} />
+        <Route path="test-pdf" element={<TestPreview />} />
         <Route
           path="settings"
           element={user?.role === 'master' ? <UserManagement /> : <div className="p-8 text-center font-bold">Acesso restrito a administradores.</div>}

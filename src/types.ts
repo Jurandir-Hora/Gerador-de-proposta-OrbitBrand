@@ -60,6 +60,13 @@ export interface Template {
   order?: number;
 }
 
+export interface TemplateRule {
+  templateId: string;
+  minTicket: number;
+  keywords: string[];
+  enabled: boolean;
+}
+
 export interface AgencySettings {
   agencyName: string;
   proposalTitle: string;
@@ -73,6 +80,7 @@ export interface AgencySettings {
   bankAgency?: string;
   bankAccount?: string;
   pixKey?: string;
+  templateRules?: TemplateRule[];
 }
 export interface Receipt {
   id: string;

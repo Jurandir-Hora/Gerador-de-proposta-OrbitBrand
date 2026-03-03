@@ -199,6 +199,12 @@ const defaultAgencySettings: AgencySettings = {
   phone: '(11) 99999-9999',
   cnpj: '00.000.000/0001-00',
   footerText: 'Orbit Brand Agência - Proposta Comercial',
+  templateRules: [
+    { templateId: 'black-edition', minTicket: 50000, keywords: [], enabled: true },
+    { templateId: 'cinematic-edition', minTicket: 0, keywords: ['vídeo', 'filme', 'cinem', 'mobile filmmaking'], enabled: true },
+    { templateId: 'corporate-gold', minTicket: 150000, keywords: ['corporat', 'empres'], enabled: true },
+    { templateId: 'executive-clean', minTicket: 0, keywords: [], enabled: true },
+  ]
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);

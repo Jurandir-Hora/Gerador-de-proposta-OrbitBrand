@@ -46,8 +46,12 @@ import {
     ChevronDown,
     SortAsc,
     CreditCard,
-    QrCode
+    QrCode,
+    BrainCircuit,
+    Cpu
 } from 'lucide-react';
+import { TEMPLATE_REGISTRY, getTemplateLabel } from '../components/pdf/TemplateManager';
+import { TemplateRule } from '../types';
 
 interface TeamMember {
     id: string;
@@ -73,7 +77,7 @@ export const UserManagement: React.FC = () => {
         agencySettings,
         updateAgencySettings
     } = useAppContext();
-    const [activeTab, setActiveTab] = useState<'team' | 'templates' | 'visual'>('team');
+    const [activeTab, setActiveTab] = useState<'team' | 'templates' | 'visual' | 'intelligence'>('team');
 
     // Estados da Equipe
     const [isAddingUser, setIsAddingUser] = useState(false);
@@ -339,6 +343,13 @@ export const UserManagement: React.FC = () => {
                 >
                     <Palette className="w-4 h-4" />
                     Identidade
+                </button>
+                <button
+                    onClick={() => setActiveTab('intelligence')}
+                    className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === 'intelligence' ? 'bg-white text-black shadow-sm' : 'text-neutral-500 hover:text-black'}`}
+                >
+                    <BrainCircuit className="w-4 h-4" />
+                    Inteligência (DLI)
                 </button>
             </div>
 
@@ -608,6 +619,114 @@ export const UserManagement: React.FC = () => {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            ) : activeTab === 'intelligence' ? (
+                <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-300">
+                    <div className="bg-indigo-900 text-white p-8 rounded-3xl shadow-xl relative overflow-hidden">
+                        <div className="relative z-10">
+                            <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
+                                <Cpu className="w-6 h-6 text-indigo-400" />
+                                Dynamic Layout Intelligence (DLI)
+                            </h3>
+                            <p className="text-indigo-200 text-sm max-w-xl mt-2 italic">
+                                Configure as regras automáticas de seleção de template. O sistema analisa o valor total da proposta e palavras-chave no nome do projeto para escolher a melhor identidade visual.
+                            </p>
+                        </div>
+                        <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -mr-10 -mt-10 blur-3xl"></div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-6">
+                        {(agencySettings.templateRules || []).map((rule, idx) => (
+                            <div key={rule.templateId} className="bg-white border border-neutral-200 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all">
+                                <div className="flex flex-col md:flex-row justify-between gap-8">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <span className="w-3 h-3 rounded-full bg-indigo-500"></span>
+                                            <h4 className="font-black text-neutral-900 uppercase italic tracking-tighter text-lg">
+                                                {getTemplateLabel(rule.templateId)}
+                                            </h4>
+                                            <span className="px-3 py-1 bg-neutral-100 text-[9px] font-black uppercase rounded-full text-neutral-500">
+                                                ID: {rule.templateId}
+                                            </span>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            <div>
+                                                <label className="block text-[10px] font-black uppercase text-neutral-400 mb-2">Ticket Mínimo (R$)</label>
+                                                <div className="relative">
+                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-neutral-400">R$</span>
+                                                    <input
+                                                        type="number"
+                                                        value={rule.minTicket}
+                                                        onChange={e => {
+                                                            const newRules = [...(agencySettings.templateRules || [])];
+                                                            newRules[idx].minTicket = Number(e.target.value);
+                                                            updateAgencySettings({ templateRules: newRules });
+                                                        }}
+                                                        className="w-full pl-12 pr-4 py-3 rounded-xl bg-neutral-50 border border-neutral-200 font-bold focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+                                                    />
+                                                </div>
+                                                <p className="text-[9px] text-neutral-400 mt-2 italic font-medium">Use 0 para desativar gatilho por valor.</p>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-[10px] font-black uppercase text-neutral-400 mb-2">Palavras-chave (gatilhos)</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Separe por vírgula (ex: vídeo, filme, cinema)"
+                                                    value={rule.keywords.join(', ')}
+                                                    onChange={e => {
+                                                        const newRules = [...(agencySettings.templateRules || [])];
+                                                        newRules[idx].keywords = e.target.value.split(',').map(k => k.trim()).filter(k => k !== '');
+                                                        updateAgencySettings({ templateRules: newRules });
+                                                    }}
+                                                    className="w-full px-4 py-3 rounded-xl bg-neutral-50 border border-neutral-200 font-bold focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+                                                />
+                                                <div className="flex flex-wrap gap-1.5 mt-2">
+                                                    {rule.keywords.map(kw => (
+                                                        <span key={kw} className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase rounded-md border border-indigo-100 italic">
+                                                            {kw}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="w-full md:w-32 border-l-0 md:border-l border-neutral-100 pl-0 md:pl-8 flex flex-col justify-center items-center gap-4">
+                                        <label className="flex flex-col items-center gap-2 cursor-pointer">
+                                            <span className="text-[9px] font-black uppercase text-neutral-400">Status</span>
+                                            <div
+                                                onClick={() => {
+                                                    const newRules = [...(agencySettings.templateRules || [])];
+                                                    newRules[idx].enabled = !newRules[idx].enabled;
+                                                    updateAgencySettings({ templateRules: newRules });
+                                                }}
+                                                className={`w-12 h-6 rounded-full p-1 transition-all ${rule.enabled ? 'bg-green-500' : 'bg-neutral-200'}`}
+                                            >
+                                                <div className={`w-4 h-4 bg-white rounded-full transition-transform ${rule.enabled ? 'translate-x-6' : 'translate-x-0'}`}></div>
+                                            </div>
+                                            <span className={`text-[10px] font-black uppercase ${rule.enabled ? 'text-green-600' : 'text-neutral-400'}`}>
+                                                {rule.enabled ? 'Ativo' : 'Inativo'}
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="bg-yellow-50 border-2 border-dashed border-yellow-200 p-8 rounded-3xl flex items-center gap-6">
+                        <div className="p-4 bg-yellow-400 rounded-2xl shadow-lg">
+                            <AlertTriangle className="w-8 h-8 text-white" />
+                        </div>
+                        <div className="flex-1">
+                            <h4 className="text-yellow-900 font-black uppercase italic tracking-tighter">Nota do Stability Engine</h4>
+                            <p className="text-yellow-800 text-sm leading-relaxed mt-1">
+                                O sistema prioriza as palavras-chave sobre o valor total. O <strong>Executive Clean</strong> é sempre usado como fallback caso nenhuma regra seja satisfeita. Novos templates detectados na pasta AutoGenerated serão listados aqui assim que registrados no registry.
+                            </p>
                         </div>
                     </div>
                 </div>

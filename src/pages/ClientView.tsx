@@ -6,6 +6,7 @@ import { Check, X, ShieldCheck, Printer } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { useRef } from 'react';
+import { DynamicProposalRenderer } from '../components/pdf/TemplateManager';
 
 export const ClientView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -350,99 +351,13 @@ export const ClientView: React.FC = () => {
         </div>
       </div>
 
-      {/* Versão Profissional para Impressão (Oculta na tela) */}
+      {/* Versão Profissional para Impressão (Oculta na tela para captura ou visível no print) */}
       <div className="fixed -left-[9999px] top-0 pointer-events-none">
         <div
           ref={previewRef}
-          data-proposal-preview="true"
-          className="bg-white min-h-[1100px] w-[800px] p-12 space-y-10 text-neutral-800 font-sans overflow-hidden"
+          className="bg-white shadow-none m-0 w-[794px]"
         >
-          <header className="flex justify-between items-start border-b-4 border-black pb-10">
-            <div>
-              {agencySettings.logoUrl ? (
-                <img src={agencySettings.logoUrl} alt={agencySettings.agencyName} className="h-16 object-contain mb-2" />
-              ) : (
-                <h1 className="text-5xl font-black tracking-tighter mb-2 italic">
-                  {agencySettings.agencyName.split(' ')[0].toUpperCase()}
-                </h1>
-              )}
-              <p className="text-sm font-bold tracking-[0.2em] text-neutral-400 uppercase">{agencySettings.proposalTitle}</p>
-            </div>
-            <div className="text-right text-xs text-neutral-500 space-y-1 uppercase tracking-widest">
-              <p className="font-black text-black">{agencySettings.agencyName}</p>
-              <p>{agencySettings.email}</p>
-              {agencySettings.cnpj && <p>CNPJ / CPF: {agencySettings.cnpj}</p>}
-            </div>
-          </header>
-
-          <section className="flex justify-between py-6">
-            <div>
-              <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-1">Para</p>
-              <h2 className="text-xl font-bold text-black">{proposal!.clientName}</h2>
-              <p className="text-neutral-600">{proposal!.clientEmail}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-1">Projeto</p>
-              <h2 className="text-xl font-bold text-black">{proposal!.projectName}</h2>
-              <p className="text-neutral-600">{new Date(proposal!.updatedAt).toLocaleDateString('pt-BR')}</p>
-            </div>
-          </section>
-
-          <section className="space-y-4">
-            <h3 className="text-lg font-bold border-b border-neutral-200 pb-2 uppercase tracking-wide">Serviços Propostos</h3>
-            <table className="w-full text-left table-fixed border-collapse">
-              <thead>
-                <tr className="text-[10px] text-neutral-400 uppercase tracking-[0.2em] border-b border-neutral-200">
-                  <th className="py-4 font-bold w-[45%]">Descrição do Serviço</th>
-                  <th className="py-4 font-bold text-center w-[10%]">Qtd</th>
-                  <th className="py-4 font-bold text-right w-[22%]">Preço Un.</th>
-                  <th className="py-4 font-bold text-right w-[23%]">Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-100">
-                {proposal!.services.map((service, idx) => (
-                  <tr key={idx}>
-                    <td className="py-6 pr-4 align-top break-words">
-                      <p className="font-bold text-base text-black leading-tight uppercase tracking-tight">{service.name}</p>
-                      <p className="text-sm text-neutral-500 mt-2 leading-relaxed">{service.description}</p>
-                    </td>
-                    <td className="py-4 text-center text-sm">{service.quantity}</td>
-                    <td className="py-4 text-right text-sm">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(service.price)}</td>
-                    <td className="py-4 text-right font-bold text-sm text-black">
-                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(service.price * service.quantity)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            <div className="flex justify-end pt-10">
-              <div className="w-full max-w-[350px] bg-black p-8 rounded-2xl text-white">
-                <div className="flex justify-between items-center text-sm font-bold uppercase tracking-widest mb-2 opacity-70">
-                  <span>Total Investimento</span>
-                </div>
-                <div className="flex justify-between items-baseline">
-                  <span className="text-3xl font-black tracking-tight text-white">
-                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(proposal!.total)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {proposal.terms && (
-            <section className="pt-8">
-              <h3 className="text-lg font-bold border-b border-neutral-200 pb-2 uppercase tracking-wide mb-4">Termos e Condições</h3>
-              <div className="text-sm text-neutral-600 whitespace-pre-wrap leading-relaxed break-words">
-                {proposal!.terms}
-              </div>
-            </section>
-          )}
-
-          <footer className="pt-16 pb-8 border-t border-neutral-200 mt-16 text-center text-sm text-neutral-400">
-            <p>Este documento é válido por 15 dias a partir da data de emissão.</p>
-            <p className="mt-2 font-bold text-neutral-800">{agencySettings.agencyName} &copy; {new Date().getFullYear()}</p>
-          </footer>
+          <DynamicProposalRenderer proposal={proposal} settings={agencySettings} />
         </div>
       </div>
     </div>
