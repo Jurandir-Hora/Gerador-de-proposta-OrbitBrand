@@ -8,6 +8,7 @@ import React, {
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
@@ -25,6 +26,7 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (data: { name?: string; avatarUrl?: string; theme?: string }) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -158,8 +160,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const resetPassword = async (email: string) => {
+    await sendPasswordResetEmail(auth, email.trim());
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser, resetPassword }}>
       {children}
     </AuthContext.Provider>
   );
